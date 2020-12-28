@@ -33,26 +33,42 @@ class FavoritesActivity : AppCompatActivity() {
         supportActionBar?.setDisplayShowHomeEnabled(true);
         rv_movies_favorites.adapter = adapter
         rv_movies_favorites.layoutManager = LinearLayoutManager(this)
-       //TODO - Recupera a lista de filmes favoritados a partir do viewmodel
+        //TODO - Recupera a lista de filmes favoritados a partir do viewmodel
+        viewModel.getFavorites()
+        initViewModel()
     }
 
-    private fun removeFavoriteMovie(result: Result){
+    private fun removeFavoriteMovie(result: Result) {
         //TODO - Referenciar a partir do viewmodel a função responsável por remover um filme
+        viewModel.removeFavoriteClickListener(result)
     }
 
     //TODO - Implementar os observers do viewmodel
+    private fun initViewModel() {
+        viewModel.stateList.observe(this, { state ->
+            state?.let {
+                showListFavorites(it as MutableList<Result>)
+            }
+        })
+
+        viewModel.stateRemoveFavorite.observe(this, { favorite ->
+            favorite?.let {
+                showMessageRemovedFavorite(it)
+            }
+        })
+    }
 
 
-    private fun showListFavorites(list: MutableList<Result>){
+    private fun showListFavorites(list: MutableList<Result>) {
         adapter.removeItem(resultRemove)
         adapter.updateList(list)
     }
 
-    private fun showMessageRemovedFavorite(result: Result){
+    private fun showMessageRemovedFavorite(result: Result) {
         resultRemove = result
         Snackbar.make(
             rv_movies_favorites,
-             resources.getString(R.string.removed_movie, result.title),
+            resources.getString(R.string.removed_movie, result.title),
             Snackbar.LENGTH_LONG
         ).show()
     }
